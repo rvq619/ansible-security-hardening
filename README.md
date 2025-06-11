@@ -32,7 +32,7 @@ security-hardening/\
 |----------|---------|
 | `harden_ssh.yml` | Secures SSH config, disables password auth, limits auth attempts |\
 | `harden_selinux.yml` | Enforces SELinux policy both at runtime and config |\
-| `tighten_firewalld.yml` | Disables unnecessary services, keeps SSH and HTTP \|
+| `tighten_firewalld.yml` | Disables unnecessary services, keeps SSH and HTTP |\
 | `configure_fail2ban.yml` | Installs and starts Fail2Ban for SSH |\
 | `enable_auditd.yml` | Enables auditd and watches `/etc/passwd` |\
 | `lockdown_users.yml` | Restricts shell access for non-wheel users |
