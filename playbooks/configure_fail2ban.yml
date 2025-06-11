@@ -1,0 +1,36 @@
+# playbooks/configure_fail2ban.yml
+
+- name: Install and configure fail2ban for ssh protection
+  hosts: local
+  connection: local
+  become: yes
+
+  vars_files:
+    - ../vault.yml
+
+  vars:
+    ansible_become_password: "{{ become_pass }}"
+
+  tasks: 
+    - name: Install Fail2Ban
+      dnf:
+        name: fail2ban
+        state: present
+
+    - name: Configure sshd jail
+      copy:
+        dest: /etc/fail2ban/jail.d/sshd.conf
+        content: |
+          [sshd]
+          enabled = true
+          port    = ssh
+          logpath = %(sshd_log)s
+          backend = systemd
+        mode: '0644'
+
+    - name: Reload fail2ban to apply jail config
+      systemd:
+        name: fail2ban
+        state: restarted
+        enabled: yes
+

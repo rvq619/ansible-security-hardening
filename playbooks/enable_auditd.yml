@@ -1,0 +1,35 @@
+# playbooks/enable_auditd.yml
+
+- name: Enable and configure audit logging
+  hosts: local
+  connection: local 
+  become: yes
+
+  vars_files:
+    - ../vault.yml
+
+  vars: 
+    ansible_become_password: "{{ become_pass }}"
+
+  tasks: 
+    - name: Install auditd
+      dnf: 
+        name: audit
+        state: present
+
+    - name: Ensure auditd is enabled and running
+      systemd: 
+        name: auditd
+        enabled: yes
+        state: started 
+
+    - name: Add basic audit rule for /etc/passwd changes
+      lineinfile: 
+        path: /etc/audit/rules.d/audit.rules
+        line: '-w /etc/passwd -p wa -k passwd_changes'
+        create: yes
+        insertafter: EOF
+
+    - name: Reload auditd rules from rules.d
+      command: augenrules --load
+

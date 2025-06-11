@@ -1,0 +1,43 @@
+# playbook/tighten_firewalld.yml
+
+
+- name: Restrict firewalld to essential services
+  hosts: local 
+  connection: local 
+  become: yes
+
+  vars_files:
+          - ../vault.yml
+
+  vars:
+          ansible_become_password: "{{ become_pass }}"
+
+  tasks:
+          - name: Remove all non-essential services
+            firewalld:
+                    service: "{{ item }}"
+                    state: disabled
+                    permanent: yes
+                    immediate: yes
+            loop:
+                    - cockpit
+                    - dhcpv6-client
+                    - samba
+                    - smtp
+                    - telnet
+                    - ftp
+                    - kdump
+
+           - name: Ensure SSH and HTTP are allowed
+             firewalld:
+                     service: "{{ item }}"
+                     state: enabled
+                     permanent: yes
+                     immediate: yes
+             loop: 
+                     - ssh
+                     - http
+
+           - name: Reload firewalld
+             command: firewall-cmd --reload
+

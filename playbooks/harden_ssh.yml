@@ -1,0 +1,39 @@
+# harden_ssh.yml
+
+- name: Harden SSH configuration
+  hosts: local
+  connection: local 
+  become: yes
+
+  tasks: 
+        - name: Backup current sshd_config
+          copy: 
+                src: /etc/ssh/sshd_config
+                dest: /etc/ssh/sshd_config.bak
+                remote_src: yes
+                mode: 0600
+
+        - name: Disable root login
+          lineinfile:
+                  path: /etc/ssh/sshd_config
+                  regexp: '^#?PermitRootLogin'
+                  line: 'PermitRootLogin no'
+                  
+        - name: Disable password authentication
+          lineinfile:
+                  path: /etc/ssh/sshd_config
+                  regexp: '^#?PasswordAuthentication'
+                  line: 'PasswordAuthentication no'
+
+        - name: Set MaxAuthTries to 3
+          lineinfile:
+                  path: /etc/ssh/sshd_config
+                  regexp: '^#?MaxAuthTries'
+                  line: 'MaxAuthTries 3'
+
+
+        - name: Restart SSHD to apply changes
+          systemd:
+                  name: sshd
+                  state: restarted
+

@@ -1,0 +1,26 @@
+# harden_selinux.yml
+
+
+- name: Ensure SELinux is enabled and enforcing
+  hosts: local
+  connection: local
+  become: yes
+
+  vars_files:
+          - /home/ryan/projects/ansible/patching/vault.yml
+
+  vars: 
+          ansible_become_password: "{{ become_pass }}"
+
+  tasks:
+          - name: Ensure SELinux config is set to enforcing
+            replace:
+                    path: /etc/selinux/config
+                    regexp: '^SELINUX=.*'
+                    replace: 'SELINUX=enforcing'
+
+
+          - name: Enforce SELinux runtime mode
+            command: setenforce 1
+            when: ansible_selinux.status != "Enforcing"
+
